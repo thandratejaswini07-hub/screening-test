@@ -210,7 +210,9 @@ export function useCamera(): UseCameraReturn {
 
   const loadFaceMesh = useCallback(async () => {
     try {
-      const { FaceMesh } = await import('@mediapipe/face_mesh')
+      const mp = await import('@mediapipe/face_mesh')
+      const FaceMesh = mp.FaceMesh || mp.default?.FaceMesh
+      if (!FaceMesh) throw new Error('FaceMesh not found in module')
       const faceMesh = new FaceMesh({
         locateFile: (file: string) =>
           `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
