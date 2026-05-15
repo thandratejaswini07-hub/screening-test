@@ -1,4 +1,9 @@
-import torch
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    torch = None
 import logging
 from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor
 from app.core.config import settings
