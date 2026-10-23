@@ -64,5 +64,3 @@ mnr-qwen/
 ├── electron/
 └── README.md
 ```
-
-This application is intended for preliminary vision screening and educational or research purposes. It is not a substitute for a professional eye examination or medical diagnosis.
