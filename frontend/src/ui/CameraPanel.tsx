@@ -8,12 +8,18 @@ interface BadgeProps {
 
 function Badge({ label, value, ok }: BadgeProps) {
   return (
-    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-      ok
-        ? 'bg-green-50 text-green-700 border border-green-200'
-        : 'bg-red-50 text-red-700 border border-red-200'
-    }`}>
-      <div className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-green-500' : 'bg-red-500'}`}/>
+    <div
+      className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+      style={
+        ok
+          ? { background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }
+          : { background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.25)' }
+      }
+    >
+      <div
+        className="w-1.5 h-1.5 rounded-full"
+        style={{ background: ok ? '#22c55e' : '#ef4444' }}
+      />
       <span>{label}: {value}</span>
     </div>
   )
@@ -66,57 +72,77 @@ export default function CameraPanel({
         }}
       />
 
-      {/* ── Not started ── */}
+      {/* Not started */}
       {!cameraActive && !cameraError && (
-        <div className={`bg-gray-50 border border-gray-200 rounded-2xl flex flex-col
-                         items-center justify-center gap-3 ${
-          compact ? 'p-4 min-h-[120px]' : 'p-8 min-h-[200px]'
-        }`}>
-          <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
-            <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+        <div
+          className={`rounded-2xl flex flex-col items-center justify-center gap-3 ${
+            compact ? 'p-4 min-h-[120px]' : 'p-8 min-h-[180px]'
+          }`}
+          style={{
+            background: 'rgba(17,31,54,0.7)',
+            border: '1px solid rgba(61,139,255,0.12)',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: 'rgba(61,139,255,0.12)', border: '1px solid rgba(61,139,255,0.2)' }}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#3d8bff" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round"
                 d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.362a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
             </svg>
           </div>
           <div className="text-center">
-            <p className="text-sm font-medium text-gray-700">Camera monitoring</p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-sm font-medium text-white">Camera monitoring</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
               {compact ? 'Eye tracking' : 'Tracks eye position and distance for accurate results'}
             </p>
           </div>
           <button
             onClick={onStart}
-            className="bg-green-600 hover:bg-green-700 text-white text-sm
-                       font-medium px-4 py-2 rounded-lg transition-colors"
+            className="btn-accent text-xs font-medium px-4 py-2 rounded-lg"
           >
             Enable camera
           </button>
         </div>
       )}
 
-      {/* ── Error ── */}
+      {/* Error */}
       {cameraError && (
-        <div className={`bg-orange-50 border border-orange-200 rounded-2xl flex flex-col
-                         items-center justify-center gap-3 ${compact ? 'p-4' : 'p-6'}`}>
-          <span className="text-2xl">⚠️</span>
-          <p className="text-sm text-orange-700 text-center leading-relaxed">{cameraError}</p>
+        <div
+          className={`rounded-2xl flex flex-col items-center justify-center gap-3 ${compact ? 'p-4' : 'p-6'}`}
+          style={{
+            background: 'rgba(245,158,11,0.08)',
+            border: '1px solid rgba(245,158,11,0.25)',
+          }}
+        >
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: 'rgba(245,158,11,0.15)' }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" stroke="#f59e0b" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+          </div>
+          <p className="text-sm text-center leading-relaxed" style={{ color: '#f59e0b' }}>{cameraError}</p>
           <button
             onClick={onStart}
-            className="text-sm bg-orange-100 hover:bg-orange-200 text-orange-800
-                       font-medium px-4 py-1.5 rounded-lg transition-colors"
+            className="text-xs font-medium px-4 py-1.5 rounded-lg transition-colors"
+            style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}
           >
             Try again
           </button>
-          <p className="text-xs text-orange-500 text-center">
+          <p className="text-xs text-center" style={{ color: 'rgba(245,158,11,0.6)' }}>
             Tests still work without camera — accuracy may be lower
           </p>
         </div>
       )}
 
-      {/* ── Active — canvas feed ── */}
+      {/* Active — canvas feed */}
       {cameraActive && (
         <div className="flex flex-col gap-2">
-          <div className="relative rounded-xl overflow-hidden bg-black">
+          <div className="relative rounded-xl overflow-hidden" style={{ background: '#000' }}>
             <canvas
               ref={canvasRef}
               className="w-full block"
@@ -124,31 +150,32 @@ export default function CameraPanel({
             />
 
             {!faceData.detected && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+              <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)' }}>
                 <div className="text-center">
-                  <div className="w-10 h-10 rounded-full border-2 border-white/50
-                                  border-t-white animate-spin mx-auto mb-2"/>
-                  <p className="text-white text-xs font-medium">
-                    Position your face in view
-                  </p>
+                  <div
+                    className="w-10 h-10 rounded-full border-2 border-white/30 border-t-white animate-spin mx-auto mb-2"
+                  />
+                  <p className="text-white text-xs font-medium">Position your face in view</p>
                 </div>
               </div>
             )}
 
             {testName && (
-              <div className="absolute top-2 left-2 bg-black/50 text-white
-                              text-xs px-2 py-0.5 rounded-full font-medium">
+              <div
+                className="absolute top-2 left-2 text-white text-xs px-2 py-0.5 rounded-full font-medium"
+                style={{ background: 'rgba(0,0,0,0.5)' }}
+              >
                 {testName}
               </div>
             )}
 
             <button
               onClick={onStop}
-              className="absolute top-2 right-2 bg-black/50 hover:bg-black/70
-                         text-white text-xs px-2 py-0.5 rounded-full transition-colors"
+              className="absolute top-2 right-2 text-white text-xs px-2 py-0.5 rounded-full transition-colors"
+              style={{ background: 'rgba(0,0,0,0.5)' }}
               title="Disable camera"
             >
-              ✕
+              x
             </button>
           </div>
 
@@ -167,11 +194,14 @@ export default function CameraPanel({
           )}
 
           {faceData.detected && faceData.distanceCm != null && !idealDistance && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-              <p className="text-xs text-amber-700 font-medium">
+            <div
+              className="rounded-lg px-3 py-2"
+              style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}
+            >
+              <p className="text-xs font-medium" style={{ color: '#f59e0b' }}>
                 {faceData.distanceCm < 50
-                  ? `↩ Too close (${faceData.distanceCm}cm) — move back`
-                  : `→ Too far (${faceData.distanceCm}cm) — move closer`}
+                  ? `Too close (${faceData.distanceCm}cm) — move back`
+                  : `Too far (${faceData.distanceCm}cm) — move closer`}
               </p>
             </div>
           )}

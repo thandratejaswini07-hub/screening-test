@@ -1,16 +1,3 @@
-/**
- * AmslerTest.tsx — Amsler Grid Test
- * ════════════════════════════════════
- * Camera monitors:
- *   - Fixation on centre dot (most critical — must not move gaze)
- *   - Both eyes open
- *   - Distance from screen (~30cm for this test)
- *   - Detects if patient scans the grid (invalidates test)
- *
- * Clinical note: Amsler grid REQUIRES strict central fixation.
- * If the patient scans the grid, the test is invalid.
- * The camera gaze tracking enforces this clinically.
- */
 
 import { useState, useEffect, useRef } from 'react'
 import { useScreeningStore } from '../../store/useScreeningStore'
@@ -42,7 +29,8 @@ function AmslerGrid({ marks, onMark, interactive, size = 300 }: {
     <svg
       width={size} height={size}
       viewBox={`0 0 ${size} ${size}`}
-      className={`bg-white rounded-xl border border-gray-200 ${interactive ? 'cursor-crosshair' : ''}`}
+      className={`rounded-xl border ${interactive ? 'cursor-crosshair' : ''}`}
+      style={{ background: '#ffffff', border: '1px solid rgba(255,255,255,0.15)' }}
       onClick={handleClick}
     >
       {/* Grid lines */}
@@ -68,6 +56,12 @@ function AmslerGrid({ marks, onMark, interactive, size = 300 }: {
   )
 }
 
+const cardStyle = {
+  background: 'rgba(17,31,54,0.7)',
+  border: '1px solid rgba(61,139,255,0.12)',
+  backdropFilter: 'blur(8px)',
+}
+
 export default function AmslerTest() {
   const { setTestResult, nextStep } = useScreeningStore()
   const camera = useCamera()
@@ -85,7 +79,6 @@ export default function AmslerTest() {
       : [...p, {x, y}]
     )
 
-  // Fixation monitoring — most critical part of Amsler test
   useEffect(() => {
     if (phase !== 'testing') return
     if (!camera.faceData.detected) return
@@ -125,22 +118,25 @@ export default function AmslerTest() {
   }
 
   if (phase === 'intro') return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-6">
-      <div className="max-w-lg w-full text-center">
-        <span className="inline-block bg-red-50 text-red-600 text-xs font-medium px-3 py-1 rounded-full mb-6">
-          Test 5 of 5 · Central Visual Field
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+      <div className="max-w-md w-full text-center">
+        <span
+          className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-6"
+          style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.25)' }}
+        >
+          Test 5 of 5  Central Visual Field
         </span>
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Amsler Grid Test</h2>
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 mb-6 text-left space-y-3">
-          <p className="text-sm text-gray-600">
-            You will see a grid with a <strong>dot in the centre</strong>.
-            Fix your gaze on the dot and <strong>do not move your eyes</strong> — the camera verifies this.
+        <h2 className="text-2xl font-bold text-white mb-4">Amsler Grid Test</h2>
+        <div className="rounded-2xl p-5 mb-5 text-left space-y-3" style={cardStyle}>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            You will see a grid with a <strong className="text-white">dot in the centre</strong>.
+            Fix your gaze on the dot and <strong className="text-white">do not move your eyes</strong> — the camera verifies this.
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             While looking only at the dot, notice whether any lines appear wavy or any area is missing.
           </p>
-          <p className="text-sm font-medium text-amber-600">
-            ⚠️ Wear reading glasses for this test if you use them.
+          <p className="text-sm font-medium" style={{ color: '#f59e0b' }}>
+            Wear reading glasses for this test if you use them.
           </p>
         </div>
         <CameraPanel
@@ -151,75 +147,80 @@ export default function AmslerTest() {
         />
         <button
           onClick={() => { fixationRef.current = 0; setPhase('testing') }}
-          className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-2xl transition-colors"
+          className="btn-accent mt-5 w-full py-4 rounded-xl font-semibold text-sm"
         >
-          View Amsler grid →
+          View Amsler Grid
         </button>
       </div>
     </div>
   )
 
   if (phase === 'done') return (
-    <div className="flex items-center justify-center min-h-[70vh]">
+    <div className="flex items-center justify-center min-h-[60vh]">
       <div className="text-center">
-        <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+        <div
+          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)' }}
+        >
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="#22c55e" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
-        <h3 className="text-xl font-semibold text-gray-900">All 5 tests complete!</h3>
-        <p className="text-gray-500 mt-2">Generating your AI report...</p>
+        <h3 className="text-lg font-semibold text-white">All 5 tests complete</h3>
+        <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>Generating your AI report...</p>
       </div>
     </div>
   )
 
   if (phase === 'marking') return (
-    <div className="flex flex-col items-center min-h-[70vh] px-4 py-6">
-      <p className="text-base font-medium text-gray-900 mb-2 text-center">
+    <div className="flex flex-col items-center min-h-[60vh] px-4 py-6">
+      <p className="text-base font-medium text-white mb-1 text-center">
         Tap the areas that appear missing or dark
       </p>
-      <p className="text-sm text-gray-400 mb-4 text-center">Tap again to deselect</p>
+      <p className="text-sm mb-4 text-center" style={{ color: 'var(--text-muted)' }}>Tap again to deselect</p>
       <div className="mb-5">
         <AmslerGrid marks={marks} onMark={toggleMark} interactive={true} size={320}/>
       </div>
       {marks.length > 0 && (
-        <p className="text-sm text-green-600 mb-3">{marks.length} area{marks.length > 1 ? 's' : ''} marked</p>
+        <p className="text-sm mb-3" style={{ color: '#22c55e' }}>
+          {marks.length} area{marks.length > 1 ? 's' : ''} marked
+        </p>
       )}
       <button
         onClick={() => finish(distorted!, true)}
-        className="w-full max-w-xs py-4 rounded-2xl bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors"
+        className="btn-accent w-full max-w-xs py-4 rounded-2xl font-semibold text-sm"
       >
-        Confirm →
+        Confirm
       </button>
     </div>
   )
 
-  // Testing phase
   return (
     <div className="max-w-2xl mx-auto px-4 py-4 flex gap-4">
 
-      {/* Left — test */}
       <div className="flex-1 flex flex-col items-center">
 
         {/* Fixation warning */}
         {!fixationOk && (
-          <div className="w-full bg-red-50 border border-red-200 rounded-xl p-2 mb-3 text-center">
-            <p className="text-xs text-red-700 font-medium">
-              ⚠️ Fix your gaze on the centre dot — do not move your eyes
+          <div
+            className="w-full rounded-xl p-2 mb-3 text-center"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}
+          >
+            <p className="text-xs font-medium" style={{ color: '#ef4444' }}>
+              Fix your gaze on the centre dot — do not move your eyes
             </p>
           </div>
         )}
 
-        {/* Fixation counter */}
         {fixationWarnings > 0 && (
-          <p className="text-xs text-gray-400 mb-2">
+          <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>
             Fixation breaks: {fixationWarnings}
             {fixationWarnings > 3 ? ' — try to keep gaze steady' : ''}
           </p>
         )}
 
-        <p className="text-xs text-gray-500 mb-3 text-center">
-          <strong>Fix gaze on the centre dot.</strong> Sit ~30cm from screen.
+        <p className="text-xs mb-3 text-center" style={{ color: 'var(--text-muted)' }}>
+          <strong className="text-white">Fix gaze on the centre dot.</strong> Sit approximately 30 cm from screen.
         </p>
 
         <div className="mb-5">
@@ -228,19 +229,31 @@ export default function AmslerTest() {
 
         {distorted === null ? (
           <>
-            <p className="text-base font-medium text-gray-900 mb-4 text-center">
+            <p className="text-base font-medium text-white mb-4 text-center">
               Do any lines appear wavy or distorted?
             </p>
             <div className="flex gap-3 w-full">
               <button
                 onClick={() => setDistorted(true)}
-                className="flex-1 py-3.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:border-green-400 transition-colors"
+                className="flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all"
+                style={{ background: 'rgba(17,31,54,0.9)', border: '1px solid rgba(61,139,255,0.2)', color: 'var(--text-muted)' }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)'
+                  ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--text)'
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(61,139,255,0.2)'
+                  ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)'
+                }}
               >
                 Yes — wavy
               </button>
               <button
                 onClick={() => setDistorted(false)}
-                className="flex-1 py-3.5 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors"
+                className="flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all"
+                style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', color: '#22c55e' }}
+                onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = 'rgba(34,197,94,0.2)'}
+                onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = 'rgba(34,197,94,0.12)'}
               >
                 No — straight
               </button>
@@ -248,19 +261,31 @@ export default function AmslerTest() {
           </>
         ) : (
           <>
-            <p className="text-base font-medium text-gray-900 mb-4 text-center">
+            <p className="text-base font-medium text-white mb-4 text-center">
               Is any area missing, dark, or blurry?
             </p>
             <div className="flex gap-3 w-full">
               <button
                 onClick={() => setPhase('marking')}
-                className="flex-1 py-3.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:border-green-400 transition-colors"
+                className="flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all"
+                style={{ background: 'rgba(17,31,54,0.9)', border: '1px solid rgba(61,139,255,0.2)', color: 'var(--text-muted)' }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)'
+                  ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--text)'
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(61,139,255,0.2)'
+                  ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)'
+                }}
               >
                 Yes — missing area
               </button>
               <button
                 onClick={() => finish(distorted!, false)}
-                className="flex-1 py-3.5 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors"
+                className="flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all"
+                style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', color: '#22c55e' }}
+                onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = 'rgba(34,197,94,0.2)'}
+                onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = 'rgba(34,197,94,0.12)'}
               >
                 No — all visible
               </button>
@@ -269,7 +294,6 @@ export default function AmslerTest() {
         )}
       </div>
 
-      {/* Right — camera */}
       <div className="w-44 flex-shrink-0 flex flex-col gap-2">
         <CameraPanel
           canvasRef={camera.canvasRef} videoRef={camera.videoRef}
@@ -278,27 +302,31 @@ export default function AmslerTest() {
           onStop={camera.stopCamera} compact={true} testName="Amsler"
         />
 
-        {/* Fixation status */}
         {camera.faceData.detected && (
-          <div className={`text-xs text-center px-2 py-1.5 rounded-lg font-medium ${
-            fixationOk
-              ? 'bg-green-50 text-green-700 border border-green-200'
-              : 'bg-red-50 text-red-600 border border-red-200'
-          }`}>
-            {fixationOk ? '✓ Fixation stable' : '⚠ Look at centre dot'}
+          <div
+            className="text-xs text-center px-2 py-1.5 rounded-lg font-medium"
+            style={
+              fixationOk
+                ? { background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }
+                : { background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.25)' }
+            }
+          >
+            {fixationOk ? 'Fixation stable' : 'Look at centre dot'}
           </div>
         )}
 
-        {/* Distance for Amsler (30cm ideal) */}
         {camera.faceData.distanceCm && (
-          <div className={`text-xs text-center px-2 py-1 rounded-lg ${
-            camera.faceData.distanceCm >= 25 && camera.faceData.distanceCm <= 40
-              ? 'bg-green-50 text-green-700'
-              : 'bg-amber-50 text-amber-700'
-          }`}>
+          <div
+            className="text-xs text-center px-2 py-1 rounded-lg"
+            style={
+              camera.faceData.distanceCm >= 25 && camera.faceData.distanceCm <= 40
+                ? { background: 'rgba(34,197,94,0.1)', color: '#22c55e' }
+                : { background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }
+            }
+          >
             {camera.faceData.distanceCm}cm
             {camera.faceData.distanceCm < 25 ? ' — move back' :
-             camera.faceData.distanceCm > 40 ? ' — move closer' : ' ✓'}
+             camera.faceData.distanceCm > 40 ? ' — move closer' : ''}
           </div>
         )}
       </div>

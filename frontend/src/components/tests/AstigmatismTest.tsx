@@ -1,12 +1,3 @@
-/**
- * AstigmatismTest.tsx — Astigmatism Clock Dial Test
- * ════════════════════════════════════════════════════
- * Camera monitors:
- *   - Confirms correct eye is open/closed for monocular testing
- *   - Gaze fixed on centre dot (critical for accurate result)
- *   - Distance consistency
- *   - Detects if patient moves head (invalidates result)
- */
 
 import { useState, useEffect } from 'react'
 import { useScreeningStore } from '../../store/useScreeningStore'
@@ -61,6 +52,12 @@ function ClockDial({ selected, onToggle, size = 260 }: {
   )
 }
 
+const cardStyle = {
+  background: 'rgba(17,31,54,0.7)',
+  border: '1px solid rgba(61,139,255,0.12)',
+  backdropFilter: 'blur(8px)',
+}
+
 export default function AstigmatismTest() {
   const { setTestResult, nextStep } = useScreeningStore()
   const camera = useCamera()
@@ -73,7 +70,6 @@ export default function AstigmatismTest() {
   const toggle = (deg: number) =>
     setSelected(p => p.includes(deg) ? p.filter(d => d !== deg) : [...p, deg])
 
-  // Gaze monitoring — critical for clock dial (must look at centre)
   useEffect(() => {
     if (phase !== 'q1' && phase !== 'q2') return
     if (!camera.faceData.detected) return
@@ -112,18 +108,21 @@ export default function AstigmatismTest() {
   }
 
   if (phase === 'intro') return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-6">
-      <div className="max-w-lg w-full text-center">
-        <span className="inline-block bg-yellow-50 text-yellow-600 text-xs font-medium px-3 py-1 rounded-full mb-6">
-          Test 4 of 5 · Astigmatism
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+      <div className="max-w-md w-full text-center">
+        <span
+          className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-6"
+          style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}
+        >
+          Test 4 of 5  Astigmatism
         </span>
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Astigmatism Check</h2>
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 mb-6 text-left space-y-3">
-          <p className="text-sm text-gray-600">
-            You will see a <strong>clock dial</strong>. Fix your gaze on the centre dot —
+        <h2 className="text-2xl font-bold text-white mb-4">Astigmatism Check</h2>
+        <div className="rounded-2xl p-5 mb-5 text-left space-y-3" style={cardStyle}>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            You will see a <strong className="text-white">clock dial</strong>. Fix your gaze on the centre dot —
             the camera verifies you are looking at the centre throughout the test.
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Report whether all lines look equally dark, or if some appear darker.
           </p>
         </div>
@@ -135,24 +134,27 @@ export default function AstigmatismTest() {
         />
         <button
           onClick={() => setPhase('q1')}
-          className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-2xl transition-colors"
+          className="btn-accent mt-5 w-full py-4 rounded-xl font-semibold text-sm"
         >
-          View clock dial →
+          View Clock Dial
         </button>
       </div>
     </div>
   )
 
   if (phase === 'done') return (
-    <div className="flex items-center justify-center min-h-[70vh]">
+    <div className="flex items-center justify-center min-h-[60vh]">
       <div className="text-center">
-        <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+        <div
+          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)' }}
+        >
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="#22c55e" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
-        <h3 className="text-xl font-semibold text-gray-900">Astigmatism check complete</h3>
-        <p className="text-gray-500 mt-2">Moving to Amsler grid...</p>
+        <h3 className="text-lg font-semibold text-white">Astigmatism check complete</h3>
+        <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>Moving to Amsler grid...</p>
       </div>
     </div>
   )
@@ -160,24 +162,26 @@ export default function AstigmatismTest() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-4 flex gap-4">
 
-      {/* Left — test */}
       <div className="flex-1 flex flex-col items-center">
 
         {/* Gaze warning */}
         {gazeMsg && (
-          <div className="w-full bg-red-50 border border-red-200 rounded-xl p-2 mb-3 text-center">
-            <p className="text-xs text-red-700 font-medium">👁 {gazeMsg}</p>
+          <div
+            className="w-full rounded-xl p-2 mb-3 text-center"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}
+          >
+            <p className="text-xs font-medium" style={{ color: '#ef4444' }}>{gazeMsg}</p>
           </div>
         )}
 
-        <p className="text-sm text-gray-500 mb-3 text-center">
+        <p className="text-sm mb-3 text-center" style={{ color: 'var(--text-muted)' }}>
           {phase === 'q1'
             ? 'Fix gaze on the centre dot — do all lines look equally dark?'
             : 'Tap the lines that appear darkest to you'
           }
         </p>
 
-        <div className="bg-white rounded-2xl p-3 border border-gray-100 mb-5 shadow-sm">
+        <div className="rounded-2xl p-3 mb-5" style={{ background: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>
           <ClockDial
             selected={phase === 'q2' ? selected : []}
             onToggle={phase === 'q2' ? toggle : () => {}}
@@ -188,13 +192,25 @@ export default function AstigmatismTest() {
           <div className="flex gap-3 w-full">
             <button
               onClick={() => handleQ1(true)}
-              className="flex-1 py-3.5 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors"
+              className="flex-1 py-3.5 rounded-xl font-semibold text-sm text-white transition-all"
+              style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: '#22c55e' }}
+              onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = 'rgba(34,197,94,0.25)'}
+              onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = 'rgba(34,197,94,0.15)'}
             >
               Yes — all equal
             </button>
             <button
               onClick={() => handleQ1(false)}
-              className="flex-1 py-3.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:border-green-400 transition-colors"
+              className="flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all"
+              style={{ background: 'rgba(17,31,54,0.9)', border: '1px solid rgba(61,139,255,0.2)', color: 'var(--text-muted)' }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)'
+                ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--text)'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(61,139,255,0.2)'
+                ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)'
+              }}
             >
               No — some darker
             </button>
@@ -204,22 +220,21 @@ export default function AstigmatismTest() {
         {phase === 'q2' && (
           <>
             {selected.length > 0 && (
-              <p className="text-sm text-green-600 mb-3">
+              <p className="text-sm mb-3" style={{ color: '#22c55e' }}>
                 {selected.length} line{selected.length > 1 ? 's' : ''} selected
               </p>
             )}
             <button
               onClick={() => finish(true, false)}
               disabled={selected.length === 0}
-              className="w-full py-3.5 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="btn-accent w-full py-3.5 rounded-xl font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Confirm →
+              Confirm
             </button>
           </>
         )}
       </div>
 
-      {/* Right — camera */}
       <div className="w-44 flex-shrink-0">
         <CameraPanel
           canvasRef={camera.canvasRef} videoRef={camera.videoRef}
@@ -228,12 +243,15 @@ export default function AstigmatismTest() {
           onStop={camera.stopCamera} compact={true} testName="Astigmatism"
         />
         {camera.faceData.detected && (
-          <div className={`mt-2 text-xs text-center px-2 py-1 rounded-lg ${
-            camera.faceData.gazeOnScreen
-              ? 'bg-green-50 text-green-700'
-              : 'bg-red-50 text-red-600'
-          }`}>
-            {camera.faceData.gazeOnScreen ? '✓ Gaze on chart' : '⚠ Look at centre'}
+          <div
+            className="mt-2 text-xs text-center px-2 py-1 rounded-lg"
+            style={
+              camera.faceData.gazeOnScreen
+                ? { background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }
+                : { background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.25)' }
+            }
+          >
+            {camera.faceData.gazeOnScreen ? 'Gaze on chart' : 'Look at centre'}
           </div>
         )}
       </div>

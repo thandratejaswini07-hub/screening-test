@@ -1,13 +1,3 @@
-/**
- * ContrastTest.tsx — Contrast Sensitivity Test
- * ══════════════════════════════════════════════
- * Camera monitors:
- *   - Both eyes open before showing each stimulus
- *   - Distance stays consistent (same as acuity test)
- *   - Blink rate (dry eyes affect contrast sensitivity)
- *   - Gaze on stimulus before accepting answer
- */
-
 import { useState, useEffect, useCallback } from 'react'
 import { useScreeningStore } from '../../store/useScreeningStore'
 import { scoreContrast } from '../../utils/scoring'
@@ -43,6 +33,12 @@ function ContrastC({ px, contrast, gap }: { px: number; contrast: number; gap: n
   )
 }
 
+const cardStyle = {
+  background: 'rgba(17,31,54,0.7)',
+  border: '1px solid rgba(61,139,255,0.12)',
+  backdropFilter: 'blur(8px)',
+}
+
 export default function ContrastTest() {
   const { pixelsPerMm, setTestResult, nextStep } = useScreeningStore()
   const camera = useCamera()
@@ -57,16 +53,12 @@ export default function ContrastTest() {
   const [eyeWarning,   setEyeWarning]   = useState<string | null>(null)
   const [waitingEyes,  setWaitingEyes]  = useState(false)
 
-  const randomGap = useCallback(
-    () => GAPS[Math.floor(Math.random() * 4)],
-    []
-  )
+  const randomGap = useCallback(() => GAPS[Math.floor(Math.random() * 4)], [])
 
   useEffect(() => {
     if (phase === 'testing') setGap(randomGap())
   }, [phase, lvlIdx])
 
-  // Monitor eye status — warn if eyes closed before answer
   useEffect(() => {
     if (phase !== 'testing') return
     if (!camera.faceData.detected) return
@@ -87,7 +79,7 @@ export default function ContrastTest() {
   }, [camera.faceData, phase])
 
   const handleAnswer = (deg: number) => {
-    if (waitingEyes) return  // don't accept answer if eyes closed
+    if (waitingEyes) return
 
     const ok       = deg === gap
     const newTotal = total + 1
@@ -118,26 +110,31 @@ export default function ContrastTest() {
   }
 
   if (phase === 'intro') return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-6">
-      <div className="max-w-lg w-full text-center">
-        <span className="inline-block bg-purple-50 text-purple-600 text-xs font-medium px-3 py-1 rounded-full mb-6">
-          Test 2 of 5 · Contrast Sensitivity
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+      <div className="max-w-md w-full text-center">
+        <span
+          className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-6"
+          style={{ background: 'rgba(92,103,242,0.12)', color: '#5c67f2', border: '1px solid rgba(92,103,242,0.25)' }}
+        >
+          Test 2 of 5  Contrast Sensitivity
         </span>
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Contrast Sensitivity</h2>
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 mb-6 text-left space-y-3">
-          <p className="text-sm text-gray-600">
-            You will see a circle with a gap. It gets progressively <strong>lighter</strong>.
+        <h2 className="text-2xl font-bold text-white mb-4">Contrast Sensitivity</h2>
+        <div className="rounded-2xl p-5 mb-5 text-left space-y-3" style={cardStyle}>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            You will see a ring with a gap. It gets progressively <strong className="text-white">lighter</strong>.
             Tap which direction the gap faces for as long as you can see it.
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             The camera ensures both eyes are open before each stimulus is shown.
           </p>
         </div>
-        <div className="flex justify-center gap-6 mb-6">
+        <div className="flex justify-center gap-6 mb-5">
           {[100, 40, 10].map(c => (
             <div key={c} className="flex flex-col items-center gap-2">
-              <ContrastC px={60} contrast={c} gap={90}/>
-              <span className="text-xs text-gray-400">{c}%</span>
+              <div className="rounded-xl p-2" style={{ background: '#fff' }}>
+                <ContrastC px={56} contrast={c} gap={90}/>
+              </div>
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{c}%</span>
             </div>
           ))}
         </div>
@@ -149,24 +146,27 @@ export default function ContrastTest() {
         />
         <button
           onClick={() => setPhase('testing')}
-          className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-2xl transition-colors"
+          className="btn-accent mt-5 w-full py-4 rounded-xl font-semibold text-sm"
         >
-          Start test →
+          Start Test
         </button>
       </div>
     </div>
   )
 
   if (phase === 'done') return (
-    <div className="flex items-center justify-center min-h-[70vh]">
+    <div className="flex items-center justify-center min-h-[60vh]">
       <div className="text-center">
-        <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+        <div
+          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)' }}
+        >
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="#22c55e" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
-        <h3 className="text-xl font-semibold text-gray-900">Contrast test complete</h3>
-        <p className="text-gray-500 mt-2">Moving to colour vision...</p>
+        <h3 className="text-lg font-semibold text-white">Contrast test complete</h3>
+        <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>Moving to colour vision...</p>
       </div>
     </div>
   )
@@ -176,30 +176,40 @@ export default function ContrastTest() {
 
       {/* Left — test */}
       <div className="flex-1 flex flex-col">
-        <div className="flex justify-between text-sm text-gray-400 mb-4">
+        <div className="flex justify-between text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
           <span>Contrast: {LEVELS[lvlIdx]}%</span>
           <span>Level {lvlIdx + 1}/{LEVELS.length}</span>
         </div>
-        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
+        <div className="h-1.5 rounded-full overflow-hidden mb-4" style={{ background: 'rgba(92,103,242,0.1)' }}>
           <div
-            className="h-full bg-purple-400 rounded-full transition-all"
-            style={{ width: `${(lvlIdx / LEVELS.length) * 100}%` }}
+            className="h-full rounded-full transition-all"
+            style={{
+              width: `${(lvlIdx / LEVELS.length) * 100}%`,
+              background: 'linear-gradient(90deg,#5c67f2,#a855f7)',
+              boxShadow: '0 0 8px rgba(92,103,242,0.5)',
+            }}
           />
         </div>
 
         {/* Eye warning */}
         {eyeWarning && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3 text-center">
-            <p className="text-xs text-amber-700 font-medium">⚠️ {eyeWarning}</p>
+          <div
+            className="rounded-xl p-3 mb-3 text-center"
+            style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}
+          >
+            <p className="text-xs font-medium" style={{ color: '#f59e0b' }}>{eyeWarning}</p>
           </div>
         )}
 
         {/* Stimulus */}
         <div
-          className={`bg-white rounded-2xl border-2 flex items-center justify-center mb-6 ${
-            waitingEyes ? 'border-amber-300 opacity-40' : 'border-gray-100'
-          }`}
-          style={{ minHeight: 200 }}
+          className="rounded-2xl flex items-center justify-center mb-6 transition-opacity"
+          style={{
+            minHeight: 200,
+            background: '#ffffff',
+            border: '1px solid rgba(255,255,255,0.08)',
+            opacity: waitingEyes ? 0.3 : 1,
+          }}
         >
           <ContrastC px={px} contrast={LEVELS[lvlIdx]} gap={gap}/>
         </div>
@@ -211,7 +221,26 @@ export default function ContrastTest() {
               key={deg}
               onClick={() => handleAnswer(deg)}
               disabled={waitingEyes}
-              className="w-16 h-16 rounded-xl bg-white border-2 border-gray-200 hover:border-green-500 hover:bg-green-50 text-xl font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-14 h-14 rounded-xl text-lg font-bold transition-all"
+              style={{
+                background: 'rgba(17,31,54,0.9)',
+                border: '1px solid rgba(61,139,255,0.2)',
+                color: 'var(--text)',
+                opacity: waitingEyes ? 0.4 : 1,
+                cursor: waitingEyes ? 'not-allowed' : 'pointer',
+              }}
+              onMouseEnter={e => {
+                if (!waitingEyes) {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'rgba(61,139,255,0.15)'
+                  ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)'
+                  ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 16px rgba(61,139,255,0.3)'
+                }
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(17,31,54,0.9)'
+                ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(61,139,255,0.2)'
+                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
+              }}
             >
               {LABELS[deg]}
             </button>
@@ -220,9 +249,10 @@ export default function ContrastTest() {
 
         <button
           onClick={() => handleAnswer(-1)}
-          className="text-sm text-gray-400 hover:text-gray-600 text-center"
+          className="text-sm text-center transition-colors"
+          style={{ color: 'var(--text-muted)' }}
         >
-          Can't see it anymore
+          Cannot see it anymore
         </button>
       </div>
 

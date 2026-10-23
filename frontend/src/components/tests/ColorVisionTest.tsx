@@ -1,13 +1,3 @@
-/**
- * ColorVisionTest.tsx — Colour Vision Test
- * ═════════════════════════════════════════
- * Camera monitors:
- *   - Both eyes must be open before showing each plate
- *   - Adequate lighting conditions (dark frame = poor lighting)
- *   - Patient looking at plate centre (gaze verification)
- *   - Notes if one eye is closed (monocular colour vision)
- */
-
 import { useState, useMemo, useEffect } from 'react'
 import { useScreeningStore } from '../../store/useScreeningStore'
 import { scoreColorVision } from '../../utils/scoring'
@@ -49,6 +39,12 @@ function makePlateSVG(plateId: number, num: string): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${size/2}" cy="${size/2}" r="${size/2}" fill="#f5f5f0"/>${dots.join('')}</svg>`
 }
 
+const cardStyle = {
+  background: 'rgba(17,31,54,0.7)',
+  border: '1px solid rgba(61,139,255,0.12)',
+  backdropFilter: 'blur(8px)',
+}
+
 export default function ColorVisionTest() {
   const { setTestResult, nextStep } = useScreeningStore()
   const camera = useCamera()
@@ -69,7 +65,6 @@ export default function ColorVisionTest() {
     return [plate.correct, ...distractors].sort(() => Math.random() - 0.5)
   }, [plateIdx])
 
-  // Monitor eyes — colour vision needs BOTH eyes for standard results
   useEffect(() => {
     if (phase !== 'testing' || !camera.faceData.detected) return
     if (!camera.faceData.leftEyeOpen || !camera.faceData.rightEyeOpen) {
@@ -106,20 +101,23 @@ export default function ColorVisionTest() {
   }
 
   if (phase === 'intro') return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-6">
-      <div className="max-w-lg w-full text-center">
-        <span className="inline-block bg-orange-50 text-orange-600 text-xs font-medium px-3 py-1 rounded-full mb-6">
-          Test 3 of 5 · Colour Vision
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+      <div className="max-w-md w-full text-center">
+        <span
+          className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-6"
+          style={{ background: 'rgba(168,85,247,0.12)', color: '#a855f7', border: '1px solid rgba(168,85,247,0.25)' }}
+        >
+          Test 3 of 5  Colour Vision
         </span>
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Colour Vision Test</h2>
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 mb-6 text-left space-y-3">
-          <p className="text-sm text-gray-600">
-            Dot patterns with a <strong>number hidden inside</strong>. Tap the number you see.
+        <h2 className="text-2xl font-bold text-white mb-4">Colour Vision Test</h2>
+        <div className="rounded-2xl p-5 mb-5 text-left space-y-3" style={cardStyle}>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            Dot patterns with a <strong className="text-white">number hidden inside</strong>. Tap the number you see.
           </p>
-          <p className="text-sm text-gray-600">
-            Keep <strong>both eyes open</strong>. The camera confirms both eyes are open before each plate.
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            Keep <strong className="text-white">both eyes open</strong>. The camera confirms both eyes are open before each plate.
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Screens for red-green colour deficiency — the most common type.
           </p>
         </div>
@@ -131,24 +129,27 @@ export default function ColorVisionTest() {
         />
         <button
           onClick={() => setPhase('testing')}
-          className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-2xl transition-colors"
+          className="btn-accent mt-5 w-full py-4 rounded-xl font-semibold text-sm"
         >
-          Start test →
+          Start Test
         </button>
       </div>
     </div>
   )
 
   if (phase === 'done') return (
-    <div className="flex items-center justify-center min-h-[70vh]">
+    <div className="flex items-center justify-center min-h-[60vh]">
       <div className="text-center">
-        <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+        <div
+          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)' }}
+        >
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="#22c55e" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
-        <h3 className="text-xl font-semibold text-gray-900">Colour vision complete</h3>
-        <p className="text-gray-500 mt-2">Moving to astigmatism check...</p>
+        <h3 className="text-lg font-semibold text-white">Colour vision complete</h3>
+        <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>Moving to astigmatism check...</p>
       </div>
     </div>
   )
@@ -158,29 +159,36 @@ export default function ColorVisionTest() {
 
       {/* Left — test */}
       <div className="flex-1 flex flex-col items-center">
-        <div className="w-full flex justify-between text-sm text-gray-400 mb-4">
+        <div className="w-full flex justify-between text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
           <span>Plate {plateIdx + 1} of {PLATES.length}</span>
-          {plateIdx === 0 && <span className="text-green-500">Demonstration plate</span>}
+          {plateIdx === 0 && <span style={{ color: 'var(--success)' }}>Demonstration plate</span>}
         </div>
-        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden mb-4">
+        <div className="h-1.5 w-full rounded-full overflow-hidden mb-4" style={{ background: 'rgba(168,85,247,0.1)' }}>
           <div
-            className="h-full bg-orange-400 rounded-full transition-all"
-            style={{ width: `${(plateIdx / PLATES.length) * 100}%` }}
+            className="h-full rounded-full transition-all"
+            style={{
+              width: `${(plateIdx / PLATES.length) * 100}%`,
+              background: 'linear-gradient(90deg,#a855f7,#5c67f2)',
+              boxShadow: '0 0 8px rgba(168,85,247,0.5)',
+            }}
           />
         </div>
 
         {/* Eye warning */}
         {eyeMsg && (
-          <div className="w-full bg-amber-50 border border-amber-200 rounded-xl p-2 mb-3 text-center">
-            <p className="text-xs text-amber-700">{eyeMsg}</p>
+          <div
+            className="w-full rounded-xl p-2 mb-3 text-center"
+            style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}
+          >
+            <p className="text-xs" style={{ color: '#f59e0b' }}>{eyeMsg}</p>
           </div>
         )}
 
         {/* Plate */}
         <div
-          className="rounded-full overflow-hidden mb-5 shadow-sm"
+          className="rounded-full overflow-hidden mb-5 shadow-xl"
           dangerouslySetInnerHTML={{ __html: plateSVG }}
-          style={{ width: 240, height: 240 }}
+          style={{ width: 240, height: 240, border: '2px solid rgba(255,255,255,0.1)' }}
         />
 
         {/* Answer buttons */}
@@ -189,7 +197,21 @@ export default function ColorVisionTest() {
             <button
               key={opt}
               onClick={() => handleAnswer(opt)}
-              className="py-3 rounded-xl bg-white border-2 border-gray-200 hover:border-green-500 hover:bg-green-50 text-xl font-bold text-gray-800 transition-colors"
+              className="py-3 rounded-xl text-xl font-bold text-white transition-all"
+              style={{
+                background: 'rgba(17,31,54,0.9)',
+                border: '1px solid rgba(61,139,255,0.2)',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(61,139,255,0.15)'
+                ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)'
+                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 16px rgba(61,139,255,0.25)'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(17,31,54,0.9)'
+                ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(61,139,255,0.2)'
+                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
+              }}
             >
               {opt}
             </button>
@@ -198,9 +220,10 @@ export default function ColorVisionTest() {
 
         <button
           onClick={() => handleAnswer('none')}
-          className="text-sm text-gray-400 hover:text-gray-600"
+          className="text-sm transition-colors"
+          style={{ color: 'var(--text-muted)' }}
         >
-          Can't see a number
+          Cannot see a number
         </button>
       </div>
 

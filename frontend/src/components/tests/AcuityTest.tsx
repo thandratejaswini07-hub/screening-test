@@ -36,6 +36,12 @@ function LandoltC({ sizeMm, gapDeg, ppm }: { sizeMm:number; gapDeg:number; ppm:n
   )
 }
 
+const cardStyle = {
+  background: 'rgba(17,31,54,0.7)',
+  border: '1px solid rgba(61,139,255,0.12)',
+  backdropFilter: 'blur(8px)',
+}
+
 export default function AcuityTest() {
   const { pixelsPerMm, setTestResult, nextStep } = useScreeningStore()
   const ppm = pixelsPerMm || 3.78
@@ -85,56 +91,81 @@ export default function AcuityTest() {
   }
 
   if (phase === 'intro') return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-6">
-      <div className="max-w-lg w-full text-center">
-        <span className="inline-block bg-blue-50 text-blue-600 text-xs font-medium px-3 py-1 rounded-full mb-6">
-          Test 1 of 5 · Visual Acuity
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+      <div className="max-w-md w-full text-center">
+        <span
+          className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-6"
+          style={{ background: 'rgba(61,139,255,0.12)', color: 'var(--accent)', border: '1px solid rgba(61,139,255,0.25)' }}
+        >
+          Test 1 of 5  Visual Acuity
         </span>
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Visual Acuity Test</h2>
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 mb-8 text-left space-y-3">
-          <p className="text-sm text-gray-600">You will see a <strong>Landolt C</strong> — a circle with a gap. Tap the button showing which direction the gap faces.</p>
-          <p className="text-sm text-gray-600">The C gets smaller each row. Stop when you can no longer read it.</p>
-          <p className="text-sm text-gray-600">Sit approximately <strong>60 cm</strong> from your screen. Wear glasses if you normally use them.</p>
+        <h2 className="text-2xl font-bold text-white mb-4">Visual Acuity Test</h2>
+        <div className="rounded-2xl p-5 mb-8 text-left space-y-3" style={cardStyle}>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            You will see a <strong className="text-white">Landolt C</strong> — a ring with a gap. Tap the button showing which direction the gap faces.
+          </p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            The C gets smaller each row. Stop when you can no longer see it.
+          </p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            Sit approximately <strong className="text-white">60 cm</strong> from your screen. Wear glasses if you normally use them.
+          </p>
         </div>
-        <button onClick={() => setPhase('testing')}
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold px-10 py-3.5 rounded-xl transition-colors">
-          Start test →
+        <button
+          onClick={() => setPhase('testing')}
+          className="btn-accent w-full py-4 rounded-xl font-semibold text-sm"
+        >
+          Start Test
         </button>
       </div>
     </div>
   )
 
   if (phase === 'done') return (
-    <div className="flex items-center justify-center min-h-[70vh]">
+    <div className="flex items-center justify-center min-h-[60vh]">
       <div className="text-center">
-        <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+        <div
+          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)' }}
+        >
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="#22c55e" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
-        <h3 className="text-xl font-semibold text-gray-900">Acuity test complete</h3>
-        <p className="text-gray-500 mt-2">Moving to contrast test...</p>
+        <h3 className="text-lg font-semibold text-white">Acuity test complete</h3>
+        <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>Moving to contrast test...</p>
       </div>
     </div>
   )
 
   return (
-    <div className="flex flex-col items-center min-h-[70vh] px-6 py-10">
-      <div className="w-full max-w-lg mb-8">
-        <div className="flex justify-between text-sm text-gray-400 mb-2">
+    <div className="flex flex-col items-center min-h-[60vh] px-4 py-6">
+      <div className="w-full max-w-md mb-6">
+        <div className="flex justify-between text-xs mb-2" style={{ color: 'var(--text-muted)' }}>
           <span>Row {rowIdx + 1}/{SNELLEN.length} · {row.label}</span>
           <span>Letter {optIdx + 1}/{PER_ROW}</span>
         </div>
-        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-          <div className="h-full bg-green-500 rounded-full transition-all"
-            style={{ width: `${((rowIdx * PER_ROW + optIdx) / (SNELLEN.length * PER_ROW)) * 100}%` }}/>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(61,139,255,0.1)' }}>
+          <div
+            className="h-full rounded-full transition-all"
+            style={{
+              width: `${((rowIdx * PER_ROW + optIdx) / (SNELLEN.length * PER_ROW)) * 100}%`,
+              background: 'linear-gradient(90deg,#3d8bff,#5c67f2)',
+              boxShadow: '0 0 8px rgba(61,139,255,0.5)',
+            }}
+          />
         </div>
       </div>
 
-      <div className="w-full max-w-lg rounded-2xl bg-white border border-gray-100 flex items-center justify-center mb-10" style={{ minHeight: 220 }}>
+      {/* Landolt C display */}
+      <div
+        className="w-full max-w-md rounded-2xl flex items-center justify-center mb-8"
+        style={{ minHeight: 200, background: '#ffffff', border: '1px solid rgba(255,255,255,0.1)' }}
+      >
         <LandoltC sizeMm={Math.max(sizeMm, 5)} gapDeg={gap} ppm={ppm}/>
       </div>
 
+      {/* Direction buttons ring */}
       <div className="relative w-48 h-48">
         {GAP_POSITIONS.map(deg => {
           const rad = (deg - 90) * (Math.PI / 180)
@@ -143,18 +174,40 @@ export default function AcuityTest() {
           return (
             <button key={deg}
               style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%,-50%)' }}
-              className="absolute w-12 h-12 rounded-xl bg-white border-2 border-gray-200 hover:border-green-500 hover:bg-green-50 text-lg font-bold transition-colors flex items-center justify-center"
-              onClick={() => handleAnswer(deg)}>
+              className="absolute w-11 h-11 rounded-xl text-base font-bold transition-all flex items-center justify-center"
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(61,139,255,0.2)'
+                ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)'
+                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 16px rgba(61,139,255,0.3)'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(17,31,54,0.9)'
+                ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(61,139,255,0.2)'
+                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
+              }}
+              onClick={() => handleAnswer(deg)}
+              style={{
+                left: `${x}%`, top: `${y}%`, transform: 'translate(-50%,-50%)',
+                background: 'rgba(17,31,54,0.9)',
+                border: '1px solid rgba(61,139,255,0.2)',
+                color: 'var(--text)',
+              } as React.CSSProperties}
+            >
               {GAP_LABELS[deg]}
             </button>
           )
         })}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-xs text-gray-400 text-center">Gap<br/>direction</span>
+          <span className="text-xs text-center" style={{ color: 'var(--text-muted)', lineHeight: 1.3 }}>Gap<br/>direction</span>
         </div>
       </div>
-      <button onClick={() => handleAnswer(-1)} className="mt-6 text-sm text-gray-400 hover:text-gray-600">
-        Can't see the gap
+
+      <button
+        onClick={() => handleAnswer(-1)}
+        className="mt-6 text-sm transition-colors"
+        style={{ color: 'var(--text-muted)' }}
+      >
+        Cannot see the gap
       </button>
     </div>
   )

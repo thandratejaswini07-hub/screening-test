@@ -6,11 +6,8 @@ const isDev = process.env.NODE_ENV === 'development'
 let backendProcess = null
 let mainWindow = null
  
-// ── Start FastAPI backend automatically ──────────────────────────────────────
 function startBackend() {
-  if (isDev) return  // In dev, backend is started manually
- 
-  // In production, start the bundled Python backend
+  if (isDev) return  
   const backendPath = path.join(process.resourcesPath, 'backend')
   backendProcess = spawn('python', ['-m', 'uvicorn', 'app.main:app', '--port', '8000'], {
     cwd: backendPath,
@@ -26,7 +23,6 @@ function startBackend() {
   })
 }
  
-// ── Create the main window ───────────────────────────────────────────────────
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
@@ -44,15 +40,15 @@ function createWindow() {
   })
  
   if (isDev) {
-    // Load Vite dev server
+    
     mainWindow.loadURL('http://localhost:5173')
     mainWindow.webContents.openDevTools()
   } else {
-    // Load built React app
+  
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
   }
  
-  // Open external links in system browser, not Electron
+ 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url)
     return { action: 'deny' }
@@ -61,13 +57,12 @@ function createWindow() {
   mainWindow.on('closed', () => { mainWindow = null })
 }
  
-// ── App lifecycle ─────────────────────────────────────────────────────────────
+
 app.whenReady().then(() => {
   startBackend()
  
-  // Wait for backend to start before opening window (in production)
   if (!isDev) {
-    setTimeout(createWindow, 3000)  // give Python 3s to start
+    setTimeout(createWindow, 3000)
   } else {
     createWindow()
   }
